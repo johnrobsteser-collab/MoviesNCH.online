@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f2fe'><path d='M19.82 2H4.18C2.97 2 2 2.97 2 4.18v15.64C2 21.03 2.97 22 4.18 22h15.64c1.21 0 2.18-.97 2.18-2.18V4.18C22 2.97 21.03 2 19.82 2zM7 4h2v2H7V4zm0 4h2v2H7V8zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm10 4h-8v-2h8v2zm0-4h-8v-2h8v2zm0-4h-8v-2h8v2zm0-4h-8V4h8v4zm2 12h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V8h2v2zm0-4h-2V4h2v2z'/></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="preconnect" href="https://image.tmdb.org">
+    <link rel="preconnect" href="https://m.media-amazon.com">
+    <title>MoviesNCH.online — Ad-Free Movie Streaming & Torrent Downloader</title>
+    <meta name="description" content="Stream real verified movies in HD/4K on MoviesNCH.online with zero popup ads. Direct multi-server playback, magnet link grabber, and built-in P2P torrent engine." />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+        <!-- MoviesNCH.online AdShield & Pop-up Terminator Engine -->
+    <script>
+      (function() {
+        window.__AD_SHIELD_BLOCKED_COUNT = 0;
+        
+        // 1. Intercept and completely neutralize window.open popups
+        try {
+          const noopWindow = {
+            closed: true,
+            focus: function() {},
+            blur: function() {},
+            close: function() {},
+            location: { href: "about:blank" }
+          };
+
+          try {
+            Object.defineProperty(window, 'open', {
+              configurable: false,
+              writable: false,
+              value: function(url, target, features) {
+                window.__AD_SHIELD_BLOCKED_COUNT = (window.__AD_SHIELD_BLOCKED_COUNT || 0) + 1;
+                console.warn("[MoviesNCH AdShield] 🛡️ Blocked popup window.open attempt:", url);
+                try {
+                  window.dispatchEvent(new CustomEvent("adshield:blocked", { detail: { type: "popup", url } }));
+                } catch(e) {}
+                return noopWindow;
+              }
+            });
+          } catch(err) {
+            window.open = function() { return noopWindow; };
+          }
+        } catch(e) {}
+
+        // 2. Prevent window top-level navigation hijacks and popunders
+        window.addEventListener("beforeunload", function(e) {
+          delete e.returnValue;
+        }, { capture: true });
+
+        // 3. Keep focus in MoviesNCH if rogue tab attempts to unfocus
+        window.addEventListener("blur", function() {
+          setTimeout(function() {
+            try { window.focus(); } catch(e) {}
+          }, 30);
+        });
+
+        // 4. Prevent programmatic click hijacking on foreign anchors
+        document.addEventListener("click", function(e) {
+          const target = e.target && e.target.closest ? e.target.closest("a") : null;
+          if (target) {
+            const href = target.getAttribute("href") || "";
+            const targetAttr = target.getAttribute("target") || "";
+            const isInternal = href.startsWith("/") || href.startsWith("#") || href.includes(window.location.hostname);
+            const isAllowed = href.startsWith("magnet:") || href.includes("imdb.com") || href.includes("omdbapi.com") || href.includes("yts.mx") || href.includes("1337x.to");
+            
+            if (targetAttr === "_blank" && !isInternal && !isAllowed && href.startsWith("http")) {
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+              window.__AD_SHIELD_BLOCKED_COUNT = (window.__AD_SHIELD_BLOCKED_COUNT || 0) + 1;
+              console.warn("[MoviesNCH AdShield] 🛡️ Blocked external ad redirect link:", href);
+              try {
+                window.dispatchEvent(new CustomEvent("adshield:blocked", { detail: { type: "link", url: href } }));
+              } catch(err) {}
+            }
+          }
+        }, true);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

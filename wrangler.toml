@@ -1,0 +1,8 @@
+name = "moviesnch-online"
+compatibility_date = "2024-09-01"
+pages_build_output_dir = "dist"
+
+# Dedicated Persistent Storage for MoviesNCH.online (Isolated from other CF projects)
+[[kv_namespaces]]
+binding = "MOVIESNCH_STORAGE"
+id = "36a6676edd7642509303b1d3e5d546f0"
