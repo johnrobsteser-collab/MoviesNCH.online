@@ -7,8 +7,7 @@ class TorrentEngine {
     this.client = null;
     this.downloadDir = path.resolve(process.cwd(), 'downloads_temp');
     this.metadataStore = new Map(); // infoHash -> extra metadata (title, poster, etc.)
-    this.initClient();
-  }
+      }
 
   initClient() {
     try {
@@ -35,7 +34,7 @@ class TorrentEngine {
     return new Promise((resolve) => {
       try {
         if (!this.client) {
-          return resolve({ success: false, error: 'Torrent client not initialized' });
+          this.initClient();
         }
 
         // Clean trackers & ensure top trackers
