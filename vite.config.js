@@ -76,7 +76,7 @@ export default defineConfig({
           return sendJson(res, 200, data);
         });
 
-        // 3. Activate subscription (Card, USDT 0x7e7380..., or NCH CEXhybrid.io)
+        // 3. Activate subscription (Card, USDT 0xEE0178..., or NCH CEXhybrid.io)
         server.middlewares.use('/api/subscription/activate', async (req, res) => {
           if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method Not Allowed' });
           const { identifier, tier, paymentMethod, txRef } = await parseJsonBody(req);

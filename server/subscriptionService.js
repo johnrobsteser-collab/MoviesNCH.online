@@ -13,7 +13,7 @@ export const BPI_CONFIG = {
 };
 
 export const CRYPTO_CONFIG = {
-  recipientWallet: "0x7e73806ef3E8e11b9a226672Df5EC8E816EDA56D",
+  recipientWallet: "0xEE01785715BA89AB87e41b9D5379Ee30A1eF3736",
   usdtTier: {
     amount: 13.60,
     currency: "USDT",
