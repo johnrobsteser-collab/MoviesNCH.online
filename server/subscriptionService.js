@@ -217,14 +217,16 @@ export function activateSubscription({ identifier, email, tier = 'FIAT_1YR', pay
     };
   }
 
-  // Format checks
+  // Format checks (Supports MetaMask 0x..., Cheese Explorer 00000..., and Native tx-... IDs)
   if (cleanMethod === 'USDT' || cleanMethod === 'NCH' || cleanMethod.includes('CRYPTO')) {
-    const isEvmHash = /^0x[a-fA-F0-9]{64}$/.test(cleanRef);
-    const isEvmAddress = /^0x[a-fA-F0-9]{40}$/.test(cleanRef);
-    if (!isEvmHash && !isEvmAddress) {
+    const isEvmHash = /^0x[a-fA-F0-9]{40,66}$/i.test(cleanRef);
+    const isRawHexHash = /^[a-fA-F0-9]{40,66}$/i.test(cleanRef); // Catches 00000... explorer hashes
+    const isNativeTxId = /^tx[-_a-zA-Z0-9]{6,100}$/i.test(cleanRef); // Catches tx-... native transaction IDs
+
+    if (!isEvmHash && !isRawHexHash && !isNativeTxId) {
       return { 
         success: false, 
-        error: `Invalid ${cleanMethod} transaction hash format. Must be a valid 66-character hash starting with 0x.` 
+        error: `Invalid ${cleanMethod} transaction format. Must be a valid transaction hash (0x... or 00000... from explorer), native transaction ID (tx-...), or sender wallet address.` 
       };
     }
   } else if (cleanMethod === 'BPI' || cleanMethod.includes('FIAT')) {

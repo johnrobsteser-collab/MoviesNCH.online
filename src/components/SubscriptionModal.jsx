@@ -131,18 +131,16 @@ export default function SubscriptionModal({
     let method = channel;
     let refNo = '';
 
-    if (channel === 'NCH') {
-      tier = 'NCH_2YR';
-      refNo = nchTxHash.trim();
-      if (!refNo.startsWith('0x') || refNo.length < 40) {
-        setErrorMessage('⚠️ Invalid NCH Transaction Hash. Must start with "0x" and be at least 42 characters long.');
-        return;
-      }
-    } else if (channel === 'USDT') {
-      tier = 'USDT_1YR';
-      refNo = usdtTxHash.trim();
-      if (!refNo.startsWith('0x') || refNo.length < 40) {
-        setErrorMessage('⚠️ Invalid USDT Transaction Hash. Must start with "0x" and be at least 42 characters long.');
+    if (channel === 'NCH' || channel === 'USDT') {
+      tier = channel === 'NCH' ? 'NCH_2YR' : 'USDT_1YR';
+      refNo = (channel === 'NCH' ? nchTxHash : usdtTxHash).trim();
+
+      const isEvmHash = /^0x[a-fA-F0-9]{40,66}$/i.test(refNo);
+      const isRawHexHash = /^[a-fA-F0-9]{40,66}$/i.test(refNo); // Accepts 00000... explorer hashes & raw hex
+      const isNativeTxId = /^tx[-_a-zA-Z0-9]{6,100}$/i.test(refNo); // Accepts tx-... & tx_... native transaction IDs
+
+      if (!isEvmHash && !isRawHexHash && !isNativeTxId) {
+        setErrorMessage(`⚠️ Invalid ${channel} Transaction Reference. Please provide a valid transaction hash (0x... or 00000... from explorer), native transaction ID (tx-...), or sender wallet address.`);
         return;
       }
     } else if (channel === 'BPI') {
@@ -578,11 +576,11 @@ export default function SubscriptionModal({
 
                 <div style={{ marginBottom: '1.2rem' }}>
                   <label style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>
-                    NCH Transaction Hash (0x...)
+                    NCH Transaction Hash / Explorer ID (0x..., 00000..., or tx-...)
                   </label>
                   <input
                     type="text"
-                    placeholder="0x..."
+                    placeholder="0x... or 00000... or tx-..."
                     value={nchTxHash}
                     onChange={(e) => setNchTxHash(e.target.value)}
                     style={{
@@ -1056,11 +1054,11 @@ export default function SubscriptionModal({
 
                 <div style={{ marginBottom: '1.2rem' }}>
                   <label style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>
-                    USDT Transaction Hash / TXID (from BscScan or Wallet)
+                    USDT Transaction Hash / TXID (0x..., 00000..., or tx-...)
                   </label>
                   <input
                     type="text"
-                    placeholder="0x..."
+                    placeholder="0x... or 00000... or tx-..."
                     value={usdtTxHash}
                     onChange={(e) => setUsdtTxHash(e.target.value)}
                     style={{

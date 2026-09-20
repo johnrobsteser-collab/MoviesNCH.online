@@ -54,14 +54,16 @@ export async function onRequestPost(context) {
             });
         }
 
-        // 4. Method-specific format checks
+        // 4. Method-specific format checks (Supports MetaMask 0x..., Cheese Explorer 00000..., and Native tx-... IDs)
         if (method === 'USDT' || method === 'NCH' || method.includes('CRYPTO')) {
-            const isEvmHash = /^0x[a-fA-F0-9]{64}$/.test(cleanRef);
-            const isEvmAddress = /^0x[a-fA-F0-9]{40}$/.test(cleanRef);
-            if (!isEvmHash && !isEvmAddress) {
+            const isEvmHash = /^0x[a-fA-F0-9]{40,66}$/i.test(cleanRef);
+            const isRawHexHash = /^[a-fA-F0-9]{40,66}$/i.test(cleanRef); // Catches 00000... explorer hashes & raw hex
+            const isNativeTxId = /^tx[-_a-zA-Z0-9]{6,100}$/i.test(cleanRef); // Catches tx-... and tx_... native IDs
+
+            if (!isEvmHash && !isRawHexHash && !isNativeTxId) {
                 return new Response(JSON.stringify({ 
                     success: false, 
-                    error: `Invalid ${method} transaction format. Please provide a valid 66-character transaction hash (0x...) from your wallet or blockchain explorer.` 
+                    error: `Invalid ${method} transaction format. Please provide a valid transaction hash (0x... or 00000... from explorer), native transaction ID (tx-...), or sender wallet address.` 
                 }), {
                     status: 400,
                     headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
