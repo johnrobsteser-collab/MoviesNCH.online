@@ -153,15 +153,22 @@ export async function onRequestPost(context) {
 
             const ttlSeconds = durationDays * 24 * 60 * 60;
 
-            // Save subscriber record
-            await kv.put(`sub:${email}`, JSON.stringify(subscriberRecord), {
-                expirationTtl: Math.max(86400, ttlSeconds)
-            });
+            // Seamless Extension: If existing pass is still active, add to remaining days
+            let finalExpiresAtMs = expiresAtMs;
+            if (subscriberRecord.subscription && subscriberRecord.subscription.expiresAtMs && subscriberRecord.subscription.expiresAtMs > now) {
+                finalExpiresAtMs = subscriberRecord.subscription.expiresAtMs + (durationDays * 24 * 60 * 60 * 1000);
+            }
+            subscription.expiresAtMs = finalExpiresAtMs;
+            subscription.expiresAt = new Date(finalExpiresAtMs).toISOString();
+            subscriberRecord.subscription = subscription;
 
-            // Register reference number to prevent replay
-            await kv.put(refRegistryKey, email, {
-                expirationTtl: Math.max(86400, ttlSeconds)
-            });
+            // Permanent Storage: Do not evict sub:${email} with expirationTtl.
+            // Members keep their account, history, and 6-digit PIN forever.
+            // Active vs Expired status is checked deterministically via expiresAtMs.
+            await kv.put(`sub:${email}`, JSON.stringify(subscriberRecord));
+
+            // Permanent anti-replay registration
+            await kv.put(refRegistryKey, email);
         } else {
             // Fallback PIN if KV not bound locally
             if (!subscriberRecord.securityPin) {

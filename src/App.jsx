@@ -385,6 +385,39 @@ export default function App() {
     }
   });
 
+  // ============================================================================
+  // 🔄 SILENT BACKGROUND CLOUDFLARE KV AUTO-SYNC (PRC & CSC Review Pattern)
+  // ============================================================================
+  useEffect(() => {
+    try {
+      const email = kycUser?.identifier || subscription?.identifier || localStorage.getItem('moviesnch_subscriber_email');
+      const pin = localStorage.getItem('moviesnch_security_pin');
+      if (email && email.includes('@') && pin) {
+        fetch('/api/restore', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, pin, autoSync: true })
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.valid && data.subscription) {
+              setSubscription(data.subscription);
+              try {
+                localStorage.setItem('moviesnch_subscription', JSON.stringify(data.subscription));
+                if (data.securityPin) localStorage.setItem('moviesnch_security_pin', data.securityPin);
+                localStorage.setItem('moviesnch_subscriber_email', email);
+              } catch (e) {}
+            } else if (data && data.expired) {
+              setSubscription(prev => prev ? { ...prev, status: 'EXPIRED' } : null);
+            }
+          })
+          .catch(err => console.debug('Silent KV subscription sync error:', err));
+      }
+    } catch (e) {
+      console.debug('Failed to run silent KV sync', e);
+    }
+  }, []);
+
   // AdShield Stats
   const [blockedAdsCount, setBlockedAdsCount] = useState(0);
   const [toast, setToast] = useState(null);

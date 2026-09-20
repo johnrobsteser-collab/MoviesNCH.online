@@ -188,6 +188,7 @@ export default function SubscriptionModal({
 
       try {
         localStorage.setItem('moviesnch_security_pin', data.securityPin || '');
+        localStorage.setItem('moviesnch_subscriber_email', email);
       } catch (e) {}
 
       onSubscriptionActivated && onSubscriptionActivated(data.subscription);
@@ -248,6 +249,7 @@ export default function SubscriptionModal({
 
       try {
         localStorage.setItem('moviesnch_security_pin', data.securityPin || pin);
+        localStorage.setItem('moviesnch_subscriber_email', email);
       } catch (e) {}
 
       onSubscriptionActivated && onSubscriptionActivated(data.subscription);
