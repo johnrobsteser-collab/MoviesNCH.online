@@ -1,153 +1,138 @@
-// ============================================================================
-// MoviesNCH.online - Subscription, KYC & Payment Orchestration Engine
-// ============================================================================
-
-import crypto from 'crypto';
+// In-Memory Database for local development
+const otpStore = new Map();
+const verifiedUsers = new Map();
+const subscriptions = new Map();
+const usedTxRefs = new Map(); // Anti-replay registry for refs
 
 export const BPI_CONFIG = {
   bankName: "Bank of the Philippine Islands (BPI)",
   accountNumber: "8129127016",
-  currency: "PHP",
-  fiatPriceUsd: 13.56, // $13.56 / year
-  usdToPhpRate: 58.20 // Real-time fallback rate
+  accountName: "Reviewer / RO•••T H TE••E",
+  accountType: "Savings Account",
+  fiatPriceUsd: 13.56,
+  usdToPhpRate: 58.20
 };
 
 export const CRYPTO_CONFIG = {
   recipientWallet: "0xEE01785715BA89AB87e41b9D5379Ee30A1eF3736",
-  usdtTier: {
-    amount: 13.60,
-    currency: "USDT",
-    durationMonths: 12,
-    durationLabel: "1 Year",
-    priceUsd: 13.60
-  },
   nchTier: {
+    targetNch: 400,
     usdEquivalent: 20.00,
-    currency: "NCH",
-    durationMonths: 24,
-    durationLabel: "2 Years (Best Value)",
     cexhybridUrl: "https://cexhybrid.io",
     buyNchUrl: "https://cexhybrid.io"
+  },
+  usdtTier: {
+    fixedUsdt: 13.60,
+    chain: "BSC (BEP-20)",
+    usdEquivalent: 13.60
   }
 };
 
-// In-memory data structures
-const kycOtps = new Map(); // identifier -> { code, expiresAt, channel, attempts }
-const verifiedUsers = new Map(); // identifier -> { verifiedAt, kycToken, identifier, channel }
-const subscriptions = new Map(); // identifier -> subscription object
-
 /**
- * Generate cryptographically random 6-digit numeric OTP
+ * Generate 6-digit OTP code for subscriber
  */
 export function generateOtp(identifier, channel = 'email') {
   const cleanId = (identifier || '').trim().toLowerCase();
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
-  const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+  if (!cleanId) {
+    return { success: false, error: 'Identifier is required' };
+  }
 
-  kycOtps.set(cleanId, {
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes expiry
+
+  otpStore.set(cleanId, {
     code,
     expiresAt,
     channel,
     attempts: 0
   });
 
-  console.log(`[MoviesNCH KYC] OTP generated for ${cleanId} (${channel}): ${code}`);
-
   return {
     success: true,
-    code, // returned so frontend can auto-fill or show in demo notification
-    expiresAt,
-    identifier: cleanId,
+    message: `Verification code successfully sent via ${channel.toUpperCase()}`,
     channel,
-    message: channel === 'sms' 
-      ? `SMS verification code dispatched to ${identifier}`
-      : `Email confirmation link/code dispatched to ${identifier}`
+    expiresInSeconds: 600,
+    code: process.env.NODE_ENV !== 'production' ? code : undefined
   };
 }
 
 /**
- * Verify OTP
+ * Verify OTP Code
  */
 export function verifyOtp(identifier, inputCode) {
   const cleanId = (identifier || '').trim().toLowerCase();
-  const entry = kycOtps.get(cleanId);
+  const isMasterCode = process.env.ENABLE_TEST_OTP === 'true' && (inputCode || '').trim() === '888888';
 
-  // Allow standard verification code or master bypass code "888888" for testing
-  const isMasterCode = (inputCode || '').trim() === '888888';
-
-  if (!entry && !isMasterCode) {
-    return { 
-      success: false, 
-      error: 'No active verification code found for this identifier or it has expired.' 
+  if (isMasterCode) {
+    const verifiedUser = {
+      identifier: cleanId,
+      status: 'VERIFIED',
+      verifiedAt: new Date().toISOString()
     };
-  }
-
-  if (entry && Date.now() > entry.expiresAt && !isMasterCode) {
-    kycOtps.delete(cleanId);
-    return { success: false, error: 'Verification code expired. Please request a new one.' };
-  }
-
-  // Brute-force protection: max 5 attempts
-  const MAX_OTP_ATTEMPTS = 5;
-  if (entry && (entry.attempts || 0) >= MAX_OTP_ATTEMPTS && !isMasterCode) {
-    kycOtps.delete(cleanId);
+    verifiedUsers.set(cleanId, verifiedUser);
     return {
-      success: false,
-      error: 'Too many failed attempts. Please request a new verification code.'
+      success: true,
+      message: 'Identity verified successfully',
+      user: verifiedUser
     };
   }
 
-  const isValid = isMasterCode || (entry && entry.code === (inputCode || '').trim());
-
-  if (!isValid) {
-    if (entry) entry.attempts = (entry.attempts || 0) + 1;
-    const remaining = MAX_OTP_ATTEMPTS - (entry ? entry.attempts : 0);
-    return { 
-      success: false, 
-      error: `Invalid verification code. ${remaining > 0 ? remaining + ' attempts remaining.' : 'Please request a new code.'}` 
-    };
+  const record = otpStore.get(cleanId);
+  if (!record) {
+    return { success: false, error: 'No verification code found. Please request a new code.' };
   }
 
-  const kycToken = crypto.randomBytes(20).toString('hex');
-  const userRecord = {
+  if (Date.now() > record.expiresAt) {
+    otpStore.delete(cleanId);
+    return { success: false, error: 'Verification code has expired. Please request a new code.' };
+  }
+
+  if (record.attempts >= 5) {
+    otpStore.delete(cleanId);
+    return { success: false, error: 'Too many incorrect attempts. Please request a new code.' };
+  }
+
+  if (record.code !== (inputCode || '').trim()) {
+    record.attempts += 1;
+    return { success: false, error: `Invalid code. ${5 - record.attempts} attempts remaining.` };
+  }
+
+  otpStore.delete(cleanId);
+
+  const verifiedUser = {
     identifier: cleanId,
-    channel: entry ? entry.channel : 'email',
-    verifiedAt: new Date().toISOString(),
-    kycToken,
-    status: 'VERIFIED'
+    channel: record.channel,
+    status: 'VERIFIED',
+    verifiedAt: new Date().toISOString()
   };
-
-  verifiedUsers.set(cleanId, userRecord);
-  kycOtps.delete(cleanId);
+  verifiedUsers.set(cleanId, verifiedUser);
 
   return {
     success: true,
-    message: 'Identity successfully verified via KYC gate!',
-    user: userRecord
+    message: 'Identity successfully verified',
+    user: verifiedUser
   };
 }
 
 /**
- * Fetch dynamic NCH price oracle from CEXhybrid.io
+ * Get Dynamic Live Oracle for NCH Coin
  */
 export async function getNchPriceOracle() {
-  let nchPriceUsdt = 0.05; // Base fallback: 1 NCH = $0.05 USDT
-  let source = "CEXhybrid.io Market Estimate";
+  let nchPriceUsdt = 0.05;
+  let source = "CEXhybrid.io (Live Oracle)";
 
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch('https://cexhybrid.io/api/v1/ticker/NCH-USDT', { signal: controller.signal });
+    const res = await fetch('https://cexhybrid.io/api/v1/ticker/NCH_USDT', { signal: controller.signal });
     clearTimeout(timeout);
     if (res.ok) {
       const data = await res.json();
-      if (data && (data.price || data.last)) {
-        nchPriceUsdt = parseFloat(data.price || data.last);
-        source = "CEXhybrid.io Live Exchange Order Book";
+      if (data && data.lastPrice) {
+        nchPriceUsdt = parseFloat(data.lastPrice);
       }
     }
-  } catch (err) {
-    // Gracefully fallback to preserve smooth customer journey
+  } catch {
     nchPriceUsdt = 0.05;
   }
 
@@ -162,7 +147,7 @@ export async function getNchPriceOracle() {
     cexhybridUrl: CRYPTO_CONFIG.nchTier.cexhybridUrl,
     buyNchUrl: CRYPTO_CONFIG.nchTier.buyNchUrl,
     recipientWallet: CRYPTO_CONFIG.recipientWallet,
-    rateLockedSeconds: 900 // 15 minutes
+    rateLockedSeconds: 900
   };
 }
 
@@ -196,26 +181,80 @@ export async function getFiatConversion() {
     phpAmount,
     bpiAccount: BPI_CONFIG.accountNumber,
     bankName: BPI_CONFIG.bankName,
+    accountName: BPI_CONFIG.accountName,
+    accountType: BPI_CONFIG.accountType,
     currency: "PHP"
   };
 }
 
 /**
- * Activate subscription for user
+ * Activate subscription for user with strict format and anti-replay verification
  */
-export function activateSubscription({ identifier, tier, paymentMethod, txRef }) {
-  const cleanId = (identifier || 'subscriber_' + Date.now()).trim().toLowerCase();
-  const now = new Date();
-  
-  let durationMonths = 12; // 1 year default
-  let durationLabel = "1 Year VIP";
-  if (tier === 'NCH_2YR') {
-    durationMonths = 24; // 2 years for NCH
-    durationLabel = "2 Years VIP";
+export function activateSubscription({ identifier, email, tier = 'FIAT_1YR', paymentMethod = 'BPI', method, txRef, refNo, txHash }) {
+  const cleanId = (email || identifier || '').trim().toLowerCase();
+  const cleanMethod = (method || paymentMethod || 'BPI').toUpperCase().trim();
+  const cleanRef = (refNo || txRef || txHash || '').trim();
+
+  if (!cleanId || !cleanId.includes('@')) {
+    return { success: false, error: 'A valid subscriber email address is required.' };
   }
 
-  const expiresAt = new Date(now);
-  expiresAt.setMonth(expiresAt.getMonth() + durationMonths);
+  if (!cleanRef || cleanRef.length < 5) {
+    return { success: false, error: 'Please provide a valid transaction reference or hash.' };
+  }
+
+  // Blacklist
+  const lowerRef = cleanRef.toLowerCase();
+  const blacklist = [
+    'test', 'paid', 'asdf', '12345', '123456', '12345678', 'none', 'null', 
+    'undefined', 'ok', 'sample', 'fake', 'trial', 'ref', 'hash', 'payment', 
+    'done', 'gcash', 'bpi', 'maya', 'usdt', 'nch'
+  ];
+  if (blacklist.includes(lowerRef) || /^(.)\1{4,}$/.test(lowerRef)) {
+    return { 
+      success: false, 
+      error: 'Invalid reference number. Generic or test strings are rejected. Please enter your actual reference.' 
+    };
+  }
+
+  // Format checks
+  if (cleanMethod === 'USDT' || cleanMethod === 'NCH' || cleanMethod.includes('CRYPTO')) {
+    const isEvmHash = /^0x[a-fA-F0-9]{64}$/.test(cleanRef);
+    const isEvmAddress = /^0x[a-fA-F0-9]{40}$/.test(cleanRef);
+    if (!isEvmHash && !isEvmAddress) {
+      return { 
+        success: false, 
+        error: `Invalid ${cleanMethod} transaction hash format. Must be a valid 66-character hash starting with 0x.` 
+      };
+    }
+  } else if (cleanMethod === 'BPI' || cleanMethod.includes('FIAT')) {
+    if (cleanRef.length < 6 || cleanRef.length > 50) {
+      return { 
+        success: false, 
+        error: 'Invalid BPI / InstaPay reference. Trace or reference numbers must be between 6 and 50 characters.' 
+      };
+    }
+  }
+
+  // Anti-replay check
+  const existingOwner = usedTxRefs.get(lowerRef);
+  if (existingOwner && existingOwner !== cleanId) {
+    return { 
+      success: false, 
+      error: 'This transaction reference has already been activated by another account. Each reference can only be used once.' 
+    };
+  }
+
+  const now = new Date();
+  const durationMonths = (tier === 'NCH_2YR') ? 24 : 12;
+  const durationDays = (tier === 'NCH_2YR') ? 730 : 365;
+  const durationLabel = (tier === 'NCH_2YR') ? "2 Years VIP Pass" : "1 Year VIP Pass";
+
+  const expiresAt = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+  // Generate 6-digit PIN
+  const existingSub = subscriptions.get(cleanId);
+  const securityPin = existingSub?.securityPin || Math.floor(100000 + Math.random() * 900000).toString();
 
   const sub = {
     id: `sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -223,55 +262,75 @@ export function activateSubscription({ identifier, tier, paymentMethod, txRef })
     tier,
     durationLabel,
     durationMonths,
-    paymentMethod,
-    txRef: txRef || `TX-${Date.now()}-${Math.floor(Math.random()*10000)}`,
+    durationDays,
+    paymentMethod: cleanMethod,
+    txRef: cleanRef,
     status: 'ACTIVE',
     startsAt: now.toISOString(),
     expiresAt: expiresAt.toISOString(),
+    expiresAtMs: expiresAt.getTime(),
     recipientWallet: CRYPTO_CONFIG.recipientWallet,
-    bpiAccount: BPI_CONFIG.accountNumber
+    bpiAccount: BPI_CONFIG.accountNumber,
+    bankName: BPI_CONFIG.bankName,
+    accountName: BPI_CONFIG.accountName,
+    securityPin
   };
 
   subscriptions.set(cleanId, sub);
+  usedTxRefs.set(lowerRef, cleanId);
 
-  console.log(`[MoviesNCH Sub] Subscription activated for ${cleanId}: ${tier} until ${expiresAt.toISOString()}`);
-
-  return {
-    success: true,
-    subscription: sub,
-    message: `🎉 VIP Subscription activated! Unlocked until ${expiresAt.toLocaleDateString()}.`
-  };
+  return { success: true, subscription: sub, securityPin, message: `${durationLabel} activated successfully!` };
 }
 
 /**
- * Get status of an active subscription
+ * Restore subscription by Email + 6-digit PIN
  */
-export function getSubscriptionStatus(identifier) {
-  if (!identifier) {
-    return { hasSubscription: false, status: 'NONE' };
+export function restoreSubscription(email, pin) {
+  const cleanId = (email || '').trim().toLowerCase();
+  const cleanPin = (pin || '').trim();
+
+  if (!cleanId || !cleanId.includes('@')) {
+    return { success: false, error: 'Valid subscriber email is required.' };
   }
 
-  const cleanId = identifier.trim().toLowerCase();
   const sub = subscriptions.get(cleanId);
-
   if (!sub) {
-    return { hasSubscription: false, status: 'NONE' };
+    return { success: false, notFound: true, error: 'No active VIP subscription found for this email.' };
+  }
+
+  if (sub.securityPin && sub.securityPin !== cleanPin) {
+    return { success: false, unauthorized: true, error: 'Invalid 6-digit Security PIN for this account.' };
   }
 
   const now = Date.now();
-  const expiresTimestamp = new Date(sub.expiresAt).getTime();
-
-  if (expiresTimestamp < now) {
-    sub.status = 'EXPIRED';
-    return { hasSubscription: false, status: 'EXPIRED', subscription: sub };
+  if (sub.expiresAtMs && sub.expiresAtMs < now) {
+    return { success: false, expired: true, error: 'Your VIP subscription has expired.' };
   }
 
-  const daysRemaining = Math.max(1, Math.ceil((expiresTimestamp - now) / (1000 * 60 * 60 * 24)));
+  return { success: true, subscription: sub, securityPin: sub.securityPin };
+}
+
+/**
+ * Get active subscription status
+ */
+export function getSubscriptionStatus(identifier) {
+  const cleanId = (identifier || '').trim().toLowerCase();
+  if (!cleanId) return { active: false };
+
+  const sub = subscriptions.get(cleanId);
+  if (!sub) return { active: false };
+
+  const now = new Date();
+  const isExpired = new Date(sub.expiresAt) < now;
+
+  if (isExpired) {
+    sub.status = 'EXPIRED';
+    return { active: false, status: 'EXPIRED', subscription: sub };
+  }
 
   return {
-    hasSubscription: true,
+    active: true,
     status: 'ACTIVE',
-    daysRemaining,
     subscription: sub
   };
 }

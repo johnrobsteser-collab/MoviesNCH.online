@@ -2,7 +2,8 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { torrentEngine } from './server/torrentEngine.js';
 import { 
-  generateOtp, 
+  generateOtp,
+  restoreSubscription, 
   verifyOtp, 
   getNchPriceOracle, 
   getFiatConversion, 
@@ -76,7 +77,24 @@ export default defineConfig({
           return sendJson(res, 200, data);
         });
 
-        // 3. Activate subscription (Card, USDT 0xEE0178..., or NCH CEXhybrid.io)
+                // Unified Subscription Route matching Cloudflare Pages Edge (/api/subscribe)
+        server.middlewares.use('/api/subscribe', async (req, res) => {
+          if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method Not Allowed' });
+          const body = await parseJsonBody(req);
+          const result = activateSubscription(body);
+          return sendJson(res, result.success ? 200 : (result.error && result.error.includes('already') ? 409 : 400), result);
+        });
+
+        // Restore Route matching Cloudflare Pages Edge (/api/restore)
+        server.middlewares.use('/api/restore', async (req, res) => {
+          if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method Not Allowed' });
+          const { email, pin, securityPin } = await parseJsonBody(req);
+          const result = restoreSubscription(email, pin || securityPin);
+          const status = result.success ? 200 : (result.unauthorized ? 401 : (result.notFound ? 404 : 400));
+          return sendJson(res, status, result);
+        });
+
+        // 3. Activate subscription (legacy endpoint backwards-compatibility)
         server.middlewares.use('/api/subscription/activate', async (req, res) => {
           if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method Not Allowed' });
           const { identifier, tier, paymentMethod, txRef } = await parseJsonBody(req);
