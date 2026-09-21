@@ -121,19 +121,28 @@ export async function getNchPriceOracle() {
   let nchPriceUsdt = 0.05;
   let source = "CEXhybrid.io (Live Oracle)";
 
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch('https://cexhybrid.io/api/v1/ticker/NCH_USDT', { signal: controller.signal });
-    clearTimeout(timeout);
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.lastPrice) {
-        nchPriceUsdt = parseFloat(data.lastPrice);
+  const priceSources = [
+    { url: 'https://cexhybrid.io/api/v1/ticker/NCH_USDT', parser: (d) => parseFloat(d.lastPrice || d.price) },
+    { url: 'https://cexhybrid.io/api/market-prices', parser: (d) => parseFloat(d?.prices?.NCH?.usd) },
+    { url: 'https://cheeseblockchain.com/dex/api/market-prices', parser: (d) => parseFloat(d?.prices?.NCH?.usd) },
+    { url: 'https://nchlogin.com/api/price/nch-quote?packageUsdt=20&walletAddress=0x0000000000000000000000000000000000000000', parser: (d) => parseFloat(d?.quote?.nchPriceUsdt) }
+  ];
+
+  for (const src of priceSources) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 2500);
+      const res = await fetch(src.url, { signal: controller.signal }).catch(() => null);
+      clearTimeout(timeout);
+      if (res && res.ok) {
+        const data = await res.json();
+        const p = src.parser(data);
+        if (p && p > 0) {
+          nchPriceUsdt = p;
+          break;
+        }
       }
-    }
-  } catch {
-    nchPriceUsdt = 0.05;
+    } catch (e) {}
   }
 
   const requiredNch = Math.round((CRYPTO_CONFIG.nchTier.usdEquivalent / nchPriceUsdt) * 100) / 100;
