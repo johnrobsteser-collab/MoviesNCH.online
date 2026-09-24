@@ -5308,3 +5308,1686 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 999px;
   color: #00f2fe;
 }
+
+
+/* =========================================================================
+   📱 ULTRA-COMPREHENSIVE MOBILE RESPONSIVE ENGINE (MoviesNCH.online)
+   Ensures 100% perfect fit on all phone screens, prevents unwanted zooming in/out,
+   fixes iOS Safari 16px auto-zoom, and elevates the mobile streaming experience.
+   ========================================================================= */
+
+/* 1. Global Viewport Fit & Pinch/Scale Lock */
+html {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden !important;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: pan-y manipulation;
+}
+
+body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden !important;
+  position: relative;
+  touch-action: pan-y manipulation;
+}
+
+#root,
+.app-container {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden !important;
+  min-width: 0;
+}
+
+/* 2. Prevent iOS Safari automatic zoom-in on input/select focus (< 16px causes zoom) */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea,
+  .search-input,
+  .big-search-input,
+  .magnet-input-field,
+  .magnet-title-field,
+  .filter-select,
+  .pagination-jump-input,
+  .kyc-text-input,
+  .form-input,
+  .tx-input,
+  .page-size-selector select {
+    font-size: 16px !important;
+  }
+}
+
+/* 3. Mobile Navigation Bar & Search */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .nav-brand {
+    gap: 10px !important;
+  }
+
+  .logo-badge {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+  }
+
+  .logo-badge svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .brand-title {
+    font-size: 1.15rem !important;
+    line-height: 1.1 !important;
+  }
+
+  /* Hide long subtitle on mobile to preserve layout */
+  .nav-brand > div > div:last-child {
+    display: none !important;
+  }
+
+  .nav-search-form {
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 4px !important;
+    height: 42px !important;
+  }
+
+  .nav-search-form .search-input {
+    height: 100% !important;
+    padding: 8px 12px !important;
+  }
+
+  .nav-search-form .search-submit-btn {
+    height: 34px !important;
+    padding: 0 12px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .nav-tabs-wrap {
+    order: 2 !important;
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    padding: 2px 0 !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+  }
+
+  .nav-tabs-wrap::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-tab-btn,
+  .btn-nav-vip {
+    padding: 6px 10px !important;
+    font-size: 0.78rem !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    border-radius: 10px !important;
+  }
+}
+
+/* 4. AdShield Live Status Bar */
+@media (max-width: 768px) {
+  .adshield-status-strip {
+    padding: 8px 12px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .adshield-inner {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+
+  .adshield-inner > div {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+}
+
+/* 5. Main Content Area Padding */
+@media (max-width: 768px) {
+  .main-content-section {
+    padding: 14px 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* 6. Grand Search Box Card on Mobile */
+@media (max-width: 768px) {
+  .grand-search-box-card {
+    padding: 16px 12px !important;
+    border-radius: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .grand-search-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .grand-search-title {
+    font-size: 1.25rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .grand-search-subtitle {
+    font-size: 0.8rem !important;
+  }
+
+  .grand-search-stats-badge {
+    font-size: 0.74rem !important;
+    padding: 4px 10px !important;
+  }
+
+  .big-search-form {
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding: 8px !important;
+    border-radius: 16px !important;
+    align-items: stretch !important;
+  }
+
+  .big-search-input {
+    width: 100% !important;
+    padding: 8px 10px !important;
+    height: 42px !important;
+  }
+
+  .big-search-submit-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 12px !important;
+    font-size: 0.92rem !important;
+    border-radius: 12px !important;
+  }
+
+  .big-search-chips-row {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    gap: 6px !important;
+    padding-bottom: 4px !important;
+    width: 100% !important;
+  }
+
+  .big-search-chips-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chips-label {
+    flex-shrink: 0 !important;
+    font-size: 0.72rem !important;
+  }
+
+  .quick-chip {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    font-size: 0.76rem !important;
+    padding: 5px 10px !important;
+  }
+}
+
+/* 7. Catalog Multi-Tier Filters (Horizontal Smooth Swiping on Mobile) */
+@media (max-width: 768px) {
+  .catalog-multi-filters {
+    padding: 12px 10px !important;
+    border-radius: 14px !important;
+    gap: 10px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .filter-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  .filter-row-label {
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    color: var(--text-dim) !important;
+  }
+
+  .collections-kind-pills,
+  .franchise-collections-row,
+  .filter-pills-container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    width: 100% !important;
+    gap: 6px !important;
+    padding: 2px 0 6px !important;
+  }
+
+  .collections-kind-pills::-webkit-scrollbar,
+  .franchise-collections-row::-webkit-scrollbar,
+  .filter-pills-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .kind-pill,
+  .franchise-pill,
+  .year-pill,
+  .genre-pill {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    padding: 6px 12px !important;
+    font-size: 0.78rem !important;
+    border-radius: 9999px !important;
+  }
+
+  .catalog-sort-controls-full {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .filter-dropdown-group {
+    width: 100% !important;
+  }
+
+  .filter-select {
+    width: 100% !important;
+    height: 42px !important;
+    padding: 8px 12px !important;
+    border-radius: 10px !important;
+  }
+
+  .filter-active-summary {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+/* 8. VIP Membership Plan Showcase Grid */
+@media (max-width: 768px) {
+  .sub-showcase-section {
+    padding: 16px 12px !important;
+    margin-bottom: 16px !important;
+    border-radius: 16px !important;
+  }
+
+  .sub-showcase-header h2 {
+    font-size: 1.3rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .showcase-subtitle {
+    font-size: 0.8rem !important;
+  }
+
+  .sub-showcase-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .sub-tier-mini-card {
+    padding: 16px 14px !important;
+    border-radius: 14px !important;
+  }
+
+  .price-big {
+    font-size: 1.6rem !important;
+  }
+
+  .btn-tier-cta {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 12px !important;
+    font-size: 0.88rem !important;
+  }
+}
+
+/* 9. Movie Cards 2-Column Mobile Grid */
+@media (max-width: 640px) {
+  .movies-grid,
+  .movie-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 24px !important;
+    width: 100% !important;
+  }
+
+  .movie-card {
+    border-radius: 12px !important;
+    border-width: 1px !important;
+  }
+
+  .movie-poster-wrap {
+    aspect-ratio: 2/3 !important;
+    border-radius: 12px 12px 0 0 !important;
+  }
+
+  .poster-top-tags {
+    top: 5px !important;
+    left: 5px !important;
+    gap: 3px !important;
+  }
+
+  .tag-pill {
+    font-size: 0.62rem !important;
+    padding: 2px 5px !important;
+    border-radius: 4px !important;
+  }
+
+  .poster-rating-badge {
+    top: 5px !important;
+    right: 5px !important;
+    font-size: 0.65rem !important;
+    padding: 2px 5px !important;
+    border-radius: 4px !important;
+  }
+
+  .movie-card-info {
+    padding: 8px 6px !important;
+  }
+
+  .movie-card-title {
+    font-size: 0.82rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 2px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  .movie-card-genre {
+    font-size: 0.68rem !important;
+    margin-bottom: 4px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .movie-card-meta {
+    font-size: 0.65rem !important;
+    gap: 3px !important;
+    margin-bottom: 6px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .movie-card-actions {
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+
+  .btn-card-stream,
+  .btn-card-torrent,
+  .btn-series-watch,
+  .btn-series-pack {
+    width: 100% !important;
+    padding: 7px 6px !important;
+    font-size: 0.72rem !important;
+    min-height: 34px !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+  }
+
+  .btn-card-icon {
+    width: 100% !important;
+    height: 32px !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+  }
+}
+
+@media (max-width: 350px) {
+  .movies-grid,
+  .movie-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+/* 10. Pagination & Page Size Bar on Mobile */
+@media (max-width: 768px) {
+  .pagination-size-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 10px 12px !important;
+  }
+
+  .page-size-selector {
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  .pagination-bar {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .pagination-pages {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 4px !important;
+  }
+
+  .pagination-btn {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .pagination-jump-form {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .pagination-jump-input {
+    width: 60px !important;
+    height: 38px !important;
+  }
+
+  .pagination-jump-btn {
+    height: 38px !important;
+    padding: 0 14px !important;
+  }
+}
+
+/* 11. Built-In Torrent Engine Tab on Mobile */
+@media (max-width: 768px) {
+  .downloader-hero-banner {
+    padding: 16px 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .downloader-hero-banner h2 {
+    font-size: 1.25rem !important;
+  }
+
+  .custom-magnet-box {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .magnet-input-field,
+  .magnet-title-field {
+    width: 100% !important;
+    height: 42px !important;
+  }
+
+  .btn-add-magnet {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 12px !important;
+  }
+
+  .torrent-task-card {
+    padding: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .torrent-card-poster {
+    width: 50px !important;
+    height: 75px !important;
+  }
+
+  .torrent-stats-row {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  .stat-pill {
+    font-size: 0.72rem !important;
+    padding: 3px 8px !important;
+  }
+
+  .torrent-actions-row {
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .torrent-actions-row button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* 12. Fullscreen Immersive Modals on Mobile */
+@media (max-width: 768px) {
+  .cinema-modal-backdrop,
+  .modal-backdrop,
+  .sub-modal-backdrop {
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+
+  .cinema-modal-content,
+  .modal-container,
+  .download-hub-modal,
+  .sub-modal-card {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .modal-header {
+    padding: 10px 12px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .modal-header > div:first-child {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  .modal-title {
+    font-size: 1.05rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .modal-subtitle {
+    font-size: 0.72rem !important;
+    flex-wrap: wrap !important;
+  }
+
+  .player-playback-mode-tabs {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    gap: 6px !important;
+    width: 100% !important;
+    padding: 2px 0 !important;
+  }
+
+  .player-playback-mode-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mode-tab-btn {
+    flex-shrink: 0 !important;
+    padding: 6px 10px !important;
+    font-size: 0.75rem !important;
+    white-space: nowrap !important;
+    border-radius: 8px !important;
+  }
+
+  .provider-selector-ribbon {
+    padding: 8px 12px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+
+  .ribbon-providers-list {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    gap: 6px !important;
+    width: 100% !important;
+    padding: 2px 0 !important;
+  }
+
+  .ribbon-providers-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .provider-chip {
+    flex-shrink: 0 !important;
+    padding: 5px 9px !important;
+    font-size: 0.74rem !important;
+    white-space: nowrap !important;
+    border-radius: 8px !important;
+  }
+
+  .player-video-wrapper,
+  .player-embed-container {
+    width: 100% !important;
+    aspect-ratio: 16/9 !important;
+    height: auto !important;
+  }
+
+  .episode-pills-scroll {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+
+  .episode-pills-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .download-hub-modal {
+    padding: 16px 14px !important;
+    overflow-y: auto !important;
+  }
+
+  .download-hub-title {
+    font-size: 1.15rem !important;
+  }
+
+  .download-option-card {
+    padding: 12px 14px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .download-option-card button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Subscription Modal on Mobile */
+  .sub-modal-card {
+    padding: 0 !important;
+    overflow-y: auto !important;
+  }
+
+  .sub-modal-header {
+    padding: 14px 16px !important;
+  }
+
+  .sub-brand-tag {
+    font-size: 1.05rem !important;
+  }
+
+  .sub-step-content {
+    padding: 14px !important;
+  }
+
+  .pay-rail-tabs {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .qr-and-details {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 14px !important;
+  }
+
+  .qr-img {
+    width: 140px !important;
+    height: 140px !important;
+  }
+
+  .qr-text-details {
+    width: 100% !important;
+  }
+
+  .copy-row {
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .copy-row input {
+    width: 100% !important;
+  }
+
+  .copy-row button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* =========================================================================
+   🌟 NETFLIX-STYLE DYNAMIC DASHBOARD & SPOTLIGHT MARQUEE STYLES
+   ========================================================================= */
+
+.netflix-hero-marquee {
+  position: relative;
+  width: 100%;
+  min-height: 520px;
+  border-radius: 24px;
+  overflow: hidden;
+  margin: 16px 0 36px;
+  background: #0b0f19;
+  border: 1px solid rgba(0, 242, 254, 0.2);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 242, 254, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.marquee-backdrop-image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+  filter: brightness(0.65) saturate(1.25);
+  transform: scale(1.02);
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), background-image 0.6s ease;
+  z-index: 0;
+}
+
+.netflix-hero-marquee:hover .marquee-backdrop-image {
+  transform: scale(1.06);
+}
+
+.marquee-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(to top, #06080d 5%, rgba(6, 8, 13, 0.85) 45%, rgba(6, 8, 13, 0.3) 100%),
+    linear-gradient(to right, #06080d 0%, rgba(6, 8, 13, 0.9) 35%, rgba(6, 8, 13, 0.4) 70%, transparent 100%);
+  z-index: 1;
+}
+
+.marquee-ambient-glow {
+  position: absolute;
+  top: -20%;
+  left: 10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 242, 254, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.marquee-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 36px;
+  padding: 44px 48px 24px;
+  flex: 1;
+}
+
+.marquee-info-col {
+  flex: 1;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.marquee-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.marquee-trending-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(249, 115, 22, 0.25));
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: 20px;
+  color: #f87171;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.marquee-trending-badge .flame-icon {
+  color: #ef4444;
+  animation: flamePulse 1.5s infinite alternate;
+}
+
+@keyframes flamePulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 2px #ef4444); }
+  100% { transform: scale(1.18); filter: drop-shadow(0 0 8px #f97316); }
+}
+
+.marquee-adfree-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 20px;
+  color: #34d399;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.marquee-quality-pill {
+  padding: 4px 10px;
+  background: rgba(0, 242, 254, 0.15);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  border-radius: 6px;
+  color: var(--primary-cyan);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.marquee-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  color: #fff;
+  letter-spacing: -0.5px;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+}
+
+.marquee-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.meta-pill.rating {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.meta-pill.rating .rating-val {
+  font-weight: 800;
+}
+
+.meta-pill.rating .rating-max {
+  font-size: 0.68rem;
+  opacity: 0.7;
+}
+
+.meta-pill.series {
+  background: rgba(157, 78, 221, 0.18);
+  border-color: rgba(157, 78, 221, 0.4);
+  color: #c084fc;
+}
+
+.marquee-plot {
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: #94a3b8;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.marquee-credits-row {
+  display: flex;
+  gap: 18px;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  flex-wrap: wrap;
+}
+
+.marquee-credits-row strong {
+  color: #94a3b8;
+  margin-right: 4px;
+}
+
+.marquee-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-marquee-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 26px;
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  color: #040914;
+  font-size: 0.95rem;
+  font-weight: 800;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 242, 254, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-marquee-play:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(0, 242, 254, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-marquee-torrent {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 22px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #f8fafc;
+  font-size: 0.92rem;
+  font-weight: 700;
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition: all 0.25s ease;
+}
+
+.btn-marquee-torrent:hover {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: var(--primary-cyan);
+  transform: translateY(-2px);
+  color: #00f2fe;
+}
+
+.btn-marquee-watchlist {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 18px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f1f5f9;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition: all 0.25s ease;
+}
+
+.btn-marquee-watchlist:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.btn-marquee-watchlist.saved {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+}
+
+.btn-marquee-shuffle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 18px;
+  background: rgba(157, 78, 221, 0.15);
+  color: #d8b4fe;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: 1px solid rgba(157, 78, 221, 0.35);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-marquee-shuffle:hover {
+  background: rgba(157, 78, 221, 0.3);
+  transform: translateY(-2px);
+  color: #fff;
+}
+
+/* 3D Floating Poster Preview Card */
+.marquee-poster-col {
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.marquee-poster-card {
+  position: relative;
+  width: 230px;
+  height: 335px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 2px solid rgba(0, 242, 254, 0.4);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 242, 254, 0.25);
+  transform: perspective(1000px) rotateY(-8deg) rotateX(4deg);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marquee-poster-card:hover {
+  transform: perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1.05);
+  border-color: var(--primary-cyan);
+  box-shadow: 0 20px 50px rgba(0, 242, 254, 0.4);
+}
+
+.marquee-poster-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.poster-play-badge {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.marquee-poster-card:hover .poster-play-badge {
+  opacity: 1;
+}
+
+.poster-play-badge svg {
+  background: rgba(0, 242, 254, 0.9);
+  padding: 16px;
+  border-radius: 50%;
+  box-shadow: 0 0 25px rgba(0, 242, 254, 0.7);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.marquee-poster-card:hover .poster-play-badge svg {
+  transform: scale(1.1);
+}
+
+.poster-overlay-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.poster-quality-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  background: var(--primary-cyan);
+  color: #040914;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.poster-audio-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+/* Bottom Navigation Controls */
+.marquee-navigation-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 24px 20px;
+}
+
+.btn-marquee-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  color: #f1f5f9;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.btn-marquee-nav:hover {
+  background: var(--primary-cyan);
+  border-color: var(--primary-cyan);
+  color: #040914;
+  transform: scale(1.1);
+}
+
+.marquee-dots-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.marquee-dot-pill {
+  width: 24px;
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.marquee-dot-pill:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.marquee-dot-pill.active {
+  width: 48px;
+  background: linear-gradient(90deg, var(--primary-cyan), var(--primary-blue));
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.5);
+}
+
+/* =========================================================================
+   🎬 NETFLIX-STYLE HORIZONTAL CAROUSEL ROWS
+   ========================================================================= */
+
+.netflix-dashboard-rows-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-bottom: 36px;
+}
+
+.netflix-movie-row-section {
+  position: relative;
+  width: 100%;
+}
+
+.row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+
+.row-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.row-icon {
+  font-size: 1.3rem;
+}
+
+.row-title {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: -0.3px;
+}
+
+.row-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary-cyan);
+  background: rgba(0, 242, 254, 0.1);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.row-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-row-shuffle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #cbd5e1;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-row-shuffle:hover {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: var(--primary-cyan);
+  color: #00f2fe;
+}
+
+.row-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.row-nav-btn:hover {
+  background: var(--primary-cyan);
+  border-color: var(--primary-cyan);
+  color: #040914;
+  transform: scale(1.08);
+}
+
+/* Horizontal Scrolling Container */
+.row-carousel-container {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 8px 4px 16px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.row-carousel-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Netflix Carousel Card */
+.netflix-carousel-card {
+  flex: 0 0 195px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-poster-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.netflix-carousel-card:hover .card-poster-wrap {
+  transform: translateY(-6px);
+  border-color: rgba(0, 242, 254, 0.5);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 242, 254, 0.2);
+}
+
+.card-poster-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.netflix-carousel-card:hover .card-poster-img {
+  transform: scale(1.06);
+}
+
+.card-top-badges {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  backdrop-filter: blur(8px);
+}
+
+.card-badge.rating {
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.card-badge.quality {
+  background: rgba(0, 242, 254, 0.25);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  color: #00f2fe;
+}
+
+.card-badge.series {
+  background: rgba(157, 78, 221, 0.35);
+  border: 1px solid rgba(157, 78, 221, 0.5);
+  color: #d8b4fe;
+}
+
+/* Card Hover Quick Action Overlay */
+.card-hover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(6, 8, 13, 0.92) 0%, rgba(6, 8, 13, 0.4) 60%, transparent 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 3;
+}
+
+.netflix-carousel-card:hover .card-hover-overlay {
+  opacity: 1;
+}
+
+.card-hover-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hover-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hover-action-btn.play {
+  background: linear-gradient(135deg, var(--primary-cyan), var(--primary-blue));
+  color: #040914;
+}
+
+.hover-action-btn.play:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.7);
+}
+
+.hover-action-btn.torrent {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  color: var(--primary-cyan);
+}
+
+.hover-action-btn.torrent:hover {
+  background: var(--primary-cyan);
+  color: #040914;
+  transform: scale(1.12);
+}
+
+.hover-action-btn.watchlist {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.hover-action-btn.watchlist:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.12);
+}
+
+.hover-action-btn.watchlist.saved {
+  background: rgba(245, 158, 11, 0.35);
+  border-color: rgba(245, 158, 11, 0.6);
+  color: #fbbf24;
+}
+
+/* Card Meta Details */
+.card-meta-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 2px;
+}
+
+.card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.card-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: #94a3b8;
+}
+
+.card-dot {
+  opacity: 0.5;
+}
+
+.card-genre {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================================
+   👑 SLEEK NETFLIX-STYLE VIP MEMBERSHIP BAR
+   ========================================================================= */
+
+.netflix-vip-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.85));
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 16px;
+  margin: 12px 0 32px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 158, 11, 0.1);
+  flex-wrap: wrap;
+}
+
+.vip-strip-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.vip-strip-title {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.vip-strip-desc {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.vip-strip-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-vip-strip-plan {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #f8fafc;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-vip-strip-plan:hover {
+  background: rgba(0, 242, 254, 0.2);
+  border-color: var(--primary-cyan);
+  color: #00f2fe;
+  transform: translateY(-2px);
+}
+
+.btn-vip-strip-plan.usdt {
+  border-color: rgba(52, 211, 153, 0.4);
+  color: #34d399;
+}
+
+.btn-vip-strip-plan.usdt:hover {
+  background: rgba(52, 211, 153, 0.2);
+  color: #fff;
+}
+
+.btn-vip-strip-plan.elite {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
+  border-color: rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+}
+
+.btn-vip-strip-plan.elite:hover {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #000;
+}
+
+/* Strict AdShield Sandbox Toggle Pill in Modal Header */
+.btn-player-action.adshield-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-player-action.adshield-toggle.active {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10b981;
+}
+
+.btn-player-action.adshield-toggle.active:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #10b981;
+}
+
+.btn-player-action.adshield-toggle.relaxed {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #f59e0b;
+}
+
+.btn-player-action.adshield-toggle.relaxed:hover {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: #f59e0b;
+}
+
+/* =========================================================================
+   📱 RESPONSIVE ADJUSTMENTS FOR NETFLIX MARQUEE & ROWS
+   ========================================================================= */
+
+@media (max-width: 900px) {
+  .marquee-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 28px 20px 20px;
+    gap: 20px;
+  }
+
+  .marquee-poster-col {
+    display: none;
+  }
+
+  .marquee-title {
+    font-size: 1.85rem;
+  }
+
+  .marquee-actions-row {
+    width: 100%;
+  }
+
+  .btn-marquee-play,
+  .btn-marquee-torrent,
+  .btn-marquee-watchlist,
+  .btn-marquee-shuffle {
+    flex: 1 1 calc(50% - 10px);
+    justify-content: center;
+    padding: 11px 14px;
+    font-size: 0.84rem;
+  }
+
+  .netflix-carousel-card {
+    flex: 0 0 150px;
+  }
+
+  .vip-strip-actions {
+    width: 100%;
+  }
+
+  .btn-vip-strip-plan {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}

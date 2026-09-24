@@ -52,10 +52,13 @@ import {
   Wifi,
   Activity,
   Crown,
-  Coins
+  Coins,
+  Shuffle
 } from 'lucide-react';
 
 import SubscriptionModal from './components/SubscriptionModal.jsx';
+import NetflixHeroMarquee from './components/NetflixHeroMarquee.jsx';
+import NetflixMovieRow from './components/NetflixMovieRow.jsx';
 
 // Import rich 1,200+ real verified movie database
 import MOVIES_DATABASE from './data/moviesData.json';
@@ -110,49 +113,44 @@ const COUNTRIES_LIST = [
 // ============================================================================
 const EMBED_PROVIDERS = [
   {
-    id: "vidsrc_pm",
-    name: "⚡ VidSrc PM (Zero Ads • 1080p)",
+    id: "vidlink",
+    name: "💎 VidLink Pro (Ultra HD • Zero Ads)",
+    icon: "💎",
+    tag: "Ultra HD 4K • Clean Player • Zero Ads",
+    quality: "4K / 1080p",
+    buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
+      isSeries
+        ? `https://vidlink.pro/tv/${imdbId}/${season}/${episode}?autoplay=1&primaryColor=00f2fe&secondaryColor=06080d&iconColor=00f2fe&player=jw`
+        : `https://vidlink.pro/movie/${imdbId}?autoplay=1&primaryColor=00f2fe&secondaryColor=06080d&iconColor=00f2fe&player=jw`
+  },
+  {
+    id: "autoembed",
+    name: "⚡ AutoEmbed VIP (Clean Stream)",
     icon: "⚡",
-    tag: "Default Player • Zero Popups • Instant HD",
+    tag: "Multi-Server • Zero Ads • Fast",
+    quality: "1080p HD",
+    buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
+      isSeries
+        ? `https://autoembed.co/tv/imdb/${imdbId}-${season}-${episode}`
+        : `https://autoembed.co/movie/imdb/${imdbId}`
+  },
+  {
+    id: "vidsrc_pm",
+    name: "🚀 VidSrc PM (Fast Mirror)",
+    icon: "🚀",
+    tag: "Fast CDN • 1080p",
     quality: "1080p HD",
     buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
       isSeries ? `https://vidsrc.pm/embed/tv/${imdbId}/${season}/${episode}` : `https://vidsrc.pm/embed/movie/${imdbId}`
   },
   {
-    id: "vidlink",
-    name: "💎 VidLink Pro (Ultra HD 4K • Zero Ads)",
-    icon: "💎",
-    tag: "Ultra HD 4K • Zero Popups • Fast",
-    quality: "4K / 1080p",
-    buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
-      isSeries ? `https://vidlink.pro/tv/${imdbId}/${season}/${episode}?autoplay=1` : `https://vidlink.pro/movie/${imdbId}?autoplay=1`
-  },
-  {
     id: "vidsrc_to",
-    name: "📡 VidSrc TO (Cloudflare CDN • 1080p)",
+    name: "📡 VidSrc TO (Cloudflare CDN)",
     icon: "📡",
-    tag: "Fast CDN • 1080p",
+    tag: "Cloudflare Mirror • 1080p",
     quality: "1080p HD",
     buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
       isSeries ? `https://vidsrc.to/embed/tv/${imdbId}/${season}/${episode}` : `https://vidsrc.to/embed/movie/${imdbId}`
-  },
-  {
-    id: "vidsrc_in",
-    name: "🚀 VidSrc Cloud IN (Multi-Server VIP)",
-    icon: "🚀",
-    tag: "LiteSpeed • Global",
-    quality: "1080p HD",
-    buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
-      isSeries ? `https://vidsrc.in/embed/tv/${imdbId}/${season}/${episode}` : `https://vidsrc.in/embed/movie/${imdbId}`
-  },
-  {
-    id: "two_embed",
-    name: "🎥 2Embed Cinema (Classic HD)",
-    icon: "🎥",
-    tag: "Classic Stream • 1080p",
-    quality: "1080p HD",
-    buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
-      isSeries ? `https://www.2embed.cc/embedtv/${imdbId}&s=${season}&e=${episode}` : `https://www.2embed.cc/embed/${imdbId}`
   },
   {
     id: "multiembed",
@@ -164,8 +162,17 @@ const EMBED_PROVIDERS = [
       isSeries ? `https://multiembed.mov/?video_id=${imdbId}&s=${season}&e=${episode}` : `https://multiembed.mov/?video_id=${imdbId}`
   },
   {
+    id: "two_embed",
+    name: "🎥 2Embed Cinema",
+    icon: "🎥",
+    tag: "Classic Stream • 1080p",
+    quality: "1080p HD",
+    buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
+      isSeries ? `https://www.2embed.cc/embedtv/${imdbId}&s=${season}&e=${episode}` : `https://www.2embed.cc/embed/${imdbId}`
+  },
+  {
     id: "smashystream",
-    name: "🎞️ SmashyStream Turbo (Player E)",
+    name: "🎞️ SmashyStream Turbo",
     icon: "🎞️",
     tag: "Turbo Stream • Multi-Sub",
     quality: "1080p HD",
@@ -322,6 +329,25 @@ export default function App() {
   const [isTheaterMode, setIsTheaterMode] = useState(false);
   const [clickShieldActive, setClickShieldActive] = useState(false);
   const clickShieldDismissedAt = useRef(0);
+
+  // Strict Iframe Sandboxing (Blocks 100% of popups at browser engine level)
+  const [strictAdShield, setStrictAdShield] = useState(true);
+
+  // Netflix-Style Spotlight & Dynamic Rotation State (Regularly changing dashboard)
+  const [heroIndex, setHeroIndex] = useState(0);
+  const [isHeroHovered, setIsHeroHovered] = useState(false);
+  const [rotationSeed, setRotationSeed] = useState(() => {
+    const now = new Date();
+    return Math.floor(now.getTime() / (1000 * 60 * 60 * 4)); // changes every 4 hours automatically
+  });
+  const [rowShuffles, setRowShuffles] = useState({
+    trending: 0,
+    masterpieces: 0,
+    series: 0,
+    anime: 0,
+    action: 0,
+    asian: 0
+  });
 
   // Built-In Torrent Downloader State
   const [torrentsList, setTorrentsList] = useState([]);
@@ -1032,6 +1058,120 @@ export default function App() {
   const totalPages = Math.ceil(displayedMovies.length / itemsPerPage);
   const paginatedMovies = displayedMovies.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+  // Helper to shuffle an array with a deterministic seed + offset (changes regularly)
+  const getShuffledPicks = useCallback((sourceList, count, shuffleCount = 0) => {
+    if (!sourceList || sourceList.length === 0) return [];
+    if (sourceList.length <= count) return sourceList;
+    const seed = rotationSeed + shuffleCount;
+    let s = (seed * 9301 + 49297) % 233280;
+    const arr = [...sourceList];
+    for (let i = arr.length - 1; i > 0; i--) {
+      s = (s * 9301 + 49297) % 233280;
+      const j = Math.floor((s / 233280) * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.slice(0, count);
+  }, [rotationSeed]);
+
+  // Curated spotlight blockbusters for Netflix hero billboard
+  const spotlightCandidates = useMemo(() => {
+    const priorityTitles = [
+      "Dune: Part Two", "Deadpool & Wolverine", "Gladiator II", "Alien: Romulus",
+      "Inside Out 2", "Oppenheimer", "Interstellar", "The Dark Knight",
+      "Shogun", "Breaking Bad", "Spirited Away", "Furiosa: A Mad Max Saga",
+      "The Batman", "Inception", "The Boys", "The Wild Robot"
+    ];
+    const picked = [];
+    for (const title of priorityTitles) {
+      const match = MOVIES_DATABASE.find(m =>
+        m.Title && (m.Title.toLowerCase() === title.toLowerCase() || m.Title.toLowerCase().includes(title.toLowerCase()))
+      );
+      if (match && !picked.some(p => p.imdbID === match.imdbID)) {
+        picked.push(match);
+      }
+    }
+    return picked.length > 0 ? picked : MOVIES_DATABASE.slice(0, 12);
+  }, []);
+
+  // Auto-advance spotlight hero every 8s if not hovered
+  useEffect(() => {
+    if (isHeroHovered || spotlightCandidates.length <= 1) return;
+    const timer = setInterval(() => {
+      setHeroIndex(prev => (prev + 1) % spotlightCandidates.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, [isHeroHovered, spotlightCandidates.length]);
+
+  // Netflix-Style Dynamic Pools (100% verified real movies from database)
+  const trendingPool = useMemo(() => {
+    return MOVIES_DATABASE.filter(m =>
+      (m.Year && /2024|2025|2026/.test(String(m.Year))) || m.isBlockbuster
+    );
+  }, []);
+  const trendingMovies = useMemo(() =>
+    getShuffledPicks(trendingPool, 18, rowShuffles.trending),
+    [trendingPool, getShuffledPicks, rowShuffles.trending]
+  );
+
+  const masterpiecesPool = useMemo(() => {
+    return MOVIES_DATABASE.filter(m => parseFloat(m.imdbRating || 0) >= 8.5);
+  }, []);
+  const masterpiecesMovies = useMemo(() =>
+    getShuffledPicks(masterpiecesPool, 18, rowShuffles.masterpieces),
+    [masterpiecesPool, getShuffledPicks, rowShuffles.masterpieces]
+  );
+
+  const seriesPool = useMemo(() => {
+    return MOVIES_DATABASE.filter(m => m.Type === "series");
+  }, []);
+  const seriesMovies = useMemo(() =>
+    getShuffledPicks(seriesPool, 18, rowShuffles.series),
+    [seriesPool, getShuffledPicks, rowShuffles.series]
+  );
+
+  const animePool = useMemo(() => {
+    return MOVIES_DATABASE.filter(m =>
+      m.Franchise === "Anime" ||
+      (m.Genre && m.Genre.toLowerCase().includes("anime")) ||
+      (m.Country === "Japan" && m.Genre && m.Genre.toLowerCase().includes("animation")) ||
+      (m.Title && /demon slayer|attack on titan|jujutsu|death note|spirited away|princess mononoke|howl|your name|suzume/i.test(m.Title))
+    );
+  }, []);
+  const animeMovies = useMemo(() =>
+    getShuffledPicks(animePool, 18, rowShuffles.anime),
+    [animePool, getShuffledPicks, rowShuffles.anime]
+  );
+
+  const actionPool = useMemo(() => {
+    return MOVIES_DATABASE.filter(m =>
+      m.Genre && (/action/i.test(m.Genre) || /sci-fi/i.test(m.Genre)) && parseFloat(m.imdbRating || 0) >= 7.8
+    );
+  }, []);
+  const actionMovies = useMemo(() =>
+    getShuffledPicks(actionPool, 18, rowShuffles.action),
+    [actionPool, getShuffledPicks, rowShuffles.action]
+  );
+
+  const asianPool = useMemo(() => {
+    return MOVIES_DATABASE.filter(m =>
+      m.Country && /korea|japan|hong kong|taiwan|china/i.test(m.Country) && parseFloat(m.imdbRating || 0) >= 7.5
+    );
+  }, []);
+  const asianMovies = useMemo(() =>
+    getShuffledPicks(asianPool, 18, rowShuffles.asian),
+    [asianPool, getShuffledPicks, rowShuffles.asian]
+  );
+
+  const handleShuffleRow = (rowKey) => {
+    setRowShuffles(prev => ({ ...prev, [rowKey]: prev[rowKey] + 1 }));
+    showToast("🎲 Refreshed with fresh verified picks from catalog!", "info");
+  };
+
+  const handleShuffleSpotlight = () => {
+    setHeroIndex(prev => (prev + 1) % spotlightCandidates.length);
+    showToast(`🎲 Spotlight rotated to ${spotlightCandidates[(heroIndex + 1) % spotlightCandidates.length]?.Title}!`, "info");
+  };
+
   // Fullscreen toggle helper
   const toggleFullscreen = () => {
     if (!playerContainerRef.current) return;
@@ -1389,126 +1529,130 @@ export default function App() {
       {/* ============================================================================ */}
       {activeTab === 'catalog' && (
         <div className="main-content-section">
-          {/* 👑 VIP SUBSCRIPTION TIERS SHOWCASE (Directly Above Search Box) */}
-          <div className="home-subscription-showcase">
-            <div className="showcase-header">
-              <div className="showcase-badge">
-                <Crown size={14} style={{ color: "var(--accent-gold)" }} />
-                <span>MoviesNCH.online VIP Membership Tiers</span>
-              </div>
-              <h2 className="showcase-title">
-                Stream 1,800+ Movies & Series with <span className="gradient-text">Zero Popup Ads</span>
-              </h2>
-              <p className="showcase-subtitle">
-                Select your preferred membership plan. Real-time automated internal payment routing with maximum privacy and zero personal info exposure.
-              </p>
+          {/* 🌟 1. DYNAMIC NETFLIX SPOTLIGHT HERO MARQUEE (100% Real Verified Blockbuster Spotlight) */}
+          {!searchQuery.trim() && selectedCategory === "All" && selectedYear === "All" && selectedKind === "all" && selectedFranchise === "all" && selectedCountry === "All" && (
+            <NetflixHeroMarquee
+              movie={spotlightCandidates[heroIndex] || spotlightCandidates[0]}
+              currentIndex={heroIndex}
+              totalCount={spotlightCandidates.length}
+              onSelectIndex={(idx) => setHeroIndex(idx)}
+              onPlay={handleOpenPlayer}
+              onTorrent={(m) => startBuiltInTorrentDownload(m, "1080p")}
+              onWatchlist={toggleWatchlist}
+              isSaved={spotlightCandidates[heroIndex] && watchlist.some(w => w.imdbID === spotlightCandidates[heroIndex].imdbID)}
+              onShuffle={handleShuffleSpotlight}
+              onHoverChange={setIsHeroHovered}
+            />
+          )}
+
+          {/* 🌟 2. NETFLIX-STYLE HORIZONTAL CAROUSELS (Auto-Refreshing & Regularly Changing) */}
+          {!searchQuery.trim() && selectedCategory === "All" && selectedYear === "All" && selectedKind === "all" && selectedFranchise === "all" && selectedCountry === "All" && (
+            <div className="netflix-dashboard-rows-container">
+              {/* Row 1: Trending 2024-2026 Blockbusters */}
+              <NetflixMovieRow
+                title="Trending Now & 2024–2026 Blockbusters"
+                icon="🔥"
+                badgeText={`${trendingPool.length} Verified Real Movies`}
+                movies={trendingMovies}
+                onPlay={handleOpenPlayer}
+                onTorrent={(m) => startBuiltInTorrentDownload(m, "1080p")}
+                onWatchlist={toggleWatchlist}
+                isSaved={(m) => watchlist.some(w => w.imdbID === m.imdbID)}
+                onShuffle={() => handleShuffleRow("trending")}
+                fallbackPoster={getCinemaSvgPoster}
+              />
+
+              {/* Row 2: All-Time Masterpieces */}
+              <NetflixMovieRow
+                title="All-Time IMDb Masterpieces (8.5+)"
+                icon="🏆"
+                badgeText={`${masterpiecesPool.length} Masterpieces`}
+                movies={masterpiecesMovies}
+                onPlay={handleOpenPlayer}
+                onTorrent={(m) => startBuiltInTorrentDownload(m, "1080p")}
+                onWatchlist={toggleWatchlist}
+                isSaved={(m) => watchlist.some(w => w.imdbID === m.imdbID)}
+                onShuffle={() => handleShuffleRow("masterpieces")}
+                fallbackPoster={getCinemaSvgPoster}
+              />
+
+              {/* Row 3: Top Binge Series */}
+              <NetflixMovieRow
+                title="Top Binge-Worthy TV & Drama Series"
+                icon="📺"
+                badgeText={`${seriesPool.length} Full Series`}
+                movies={seriesMovies}
+                onPlay={handleOpenPlayer}
+                onTorrent={(m) => startBuiltInTorrentDownload(m, "1080p")}
+                onWatchlist={toggleWatchlist}
+                isSaved={(m) => watchlist.some(w => w.imdbID === m.imdbID)}
+                onShuffle={() => handleShuffleRow("series")}
+                fallbackPoster={getCinemaSvgPoster}
+              />
+
+              {/* Row 4: Anime Masterpieces */}
+              <NetflixMovieRow
+                title="Anime Masterpieces & Studio Ghibli"
+                icon="⛩️"
+                badgeText={`${animePool.length} Anime Hits`}
+                movies={animeMovies}
+                onPlay={handleOpenPlayer}
+                onTorrent={(m) => startBuiltInTorrentDownload(m, "1080p")}
+                onWatchlist={toggleWatchlist}
+                isSaved={(m) => watchlist.some(w => w.imdbID === m.imdbID)}
+                onShuffle={() => handleShuffleRow("anime")}
+                fallbackPoster={getCinemaSvgPoster}
+              />
+
+              {/* Row 5: Action & Sci-Fi Thrillers */}
+              <NetflixMovieRow
+                title="High-Octane Action & Sci-Fi Thrillers"
+                icon="🍿"
+                badgeText={`${actionPool.length} Thrillers`}
+                movies={actionMovies}
+                onPlay={handleOpenPlayer}
+                onTorrent={(m) => startBuiltInTorrentDownload(m, "1080p")}
+                onWatchlist={toggleWatchlist}
+                isSaved={(m) => watchlist.some(w => w.imdbID === m.imdbID)}
+                onShuffle={() => handleShuffleRow("action")}
+                fallbackPoster={getCinemaSvgPoster}
+              />
+
+              {/* Row 6: Korean & Asian Cinema */}
+              <NetflixMovieRow
+                title="K-Drama & Asian Cinema Sensations"
+                icon="🇰🇷"
+                badgeText={`${asianPool.length} Global Hits`}
+                movies={asianMovies}
+                onPlay={handleOpenPlayer}
+                onTorrent={(m) => startBuiltInTorrentDownload(m, "1080p")}
+                onWatchlist={toggleWatchlist}
+                isSaved={(m) => watchlist.some(w => w.imdbID === m.imdbID)}
+                onShuffle={() => handleShuffleRow("asian")}
+                fallbackPoster={getCinemaSvgPoster}
+              />
             </div>
+          )}
 
-            <div className="sub-showcase-grid">
-              {/* Tier 2: 1-Year VIP Pass */}
-              <div className="sub-tier-mini-card standard-vip" onClick={() => handleOpenSubModal('FIAT_1YR')}>
-                <div className="tier-mini-badge popular">POPULAR VIP</div>
-                <div className="tier-mini-header">
-                  <div className="tier-mini-icon vip-glow">
-                    <Zap size={20} />
-                  </div>
-                  <div>
-                    <h4 className="tier-mini-title">1-Year VIP Pass</h4>
-                    <span className="tier-mini-period">365 Days Unrestricted</span>
-                  </div>
-                </div>
-                <div className="tier-mini-price">
-                  <span className="price-big">$13.56</span>
-                  <span className="price-sub">/ year (~₱789 PHP or 13.60 USDT)</span>
-                </div>
-                <ul className="tier-mini-perks">
-                  <li><Check size={13} style={{ color: "var(--primary-cyan)" }} /> Ultra HD 4K Cinema Dedicated Servers</li>
-                  <li><Check size={13} style={{ color: "var(--primary-cyan)" }} /> 1-Click Built-In High-Speed Torrent Engine</li>
-                  <li><Check size={13} style={{ color: "var(--primary-cyan)" }} /> Card, GCash, Maya & USDT Supported</li>
-                  <li><Check size={13} style={{ color: "var(--primary-cyan)" }} /> 100% Automated Internal Settlement</li>
-                </ul>
-                <button
-                  type="button"
-                  className="btn-tier-cta"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpenSubModal('FIAT_1YR');
-                  }}
-                >
-                  <Sparkles size={14} />
-                  <span>Get 1-Year VIP ($13.56)</span>
-                </button>
+          {/* 🌟 3. SLEEK NETFLIX-STYLE VIP MEMBERSHIP BAR */}
+          <div className="netflix-vip-strip">
+            <div className="vip-strip-left">
+              <Crown size={22} style={{ color: "var(--accent-gold)" }} />
+              <div>
+                <h3 className="vip-strip-title">MoviesNCH.online VIP Pass — Zero Popup Cinema</h3>
+                <p className="vip-strip-desc">Dedicated 4K high-bitrate streaming, unrestricted torrent acceleration & 100% privacy protection.</p>
               </div>
-
-              {/* Tier 1: 13.60 USDT Subscription (Crypto VIP) */}
-              <div className="sub-tier-mini-card usdt-vip" onClick={() => handleOpenSubModal('USDT_1YR')}>
-                <div className="tier-mini-badge crypto">⚡ CRYPTO CLEARANCE</div>
-                <div className="tier-mini-header">
-                  <div className="tier-mini-icon usdt-glow">
-                    <Coins size={20} />
-                  </div>
-                  <div>
-                    <h4 className="tier-mini-title">13.60 USDT VIP</h4>
-                    <span className="tier-mini-period">1 Year • 365 Days Access</span>
-                  </div>
-                </div>
-                <div className="tier-mini-price">
-                  <span className="price-big">13.60</span>
-                  <span className="price-sub">USDT / year (Direct Crypto)</span>
-                </div>
-                <ul className="tier-mini-perks">
-                  <li><Check size={13} style={{ color: "#34d399" }} /> Flat 13.60 USDT (Zero Hidden Fees)</li>
-                  <li><Check size={13} style={{ color: "#34d399" }} /> TRC20, BEP20 & ERC20 USDT Supported</li>
-                  <li><Check size={13} style={{ color: "#34d399" }} /> 1-Click Web3 Authorization or Express Clearance</li>
-                  <li><Check size={13} style={{ color: "#34d399" }} /> Ultra HD 4K Streaming & High-Speed Torrents</li>
-                </ul>
-                <button
-                  type="button"
-                  className="btn-tier-cta usdt"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpenSubModal('USDT_1YR');
-                  }}
-                >
-                  <Coins size={14} />
-                  <span>Upgrade with 13.60 USDT</span>
-                </button>
-              </div>
-
-              {/* Tier 3: 2-Year Elite VIP (Best Value) */}
-              <div className="sub-tier-mini-card featured-vip" onClick={() => handleOpenSubModal('NCH_2YR')}>
-                <div className="tier-mini-badge best-value">🔥 SAVE 65% • BEST VALUE</div>
-                <div className="tier-mini-header">
-                  <div className="tier-mini-icon nch-glow">
-                    <Coins size={20} />
-                  </div>
-                  <div>
-                    <h4 className="tier-mini-title">2-Year Elite VIP</h4>
-                    <span className="tier-mini-period">730 Days Full Access</span>
-                  </div>
-                </div>
-                <div className="tier-mini-price">
-                  <span className="price-big">$20.00</span>
-                  <span className="price-sub">/ 2 Years (400 NCH Coin)</span>
-                </div>
-                <ul className="tier-mini-perks">
-                  <li><Check size={13} style={{ color: "var(--accent-gold)" }} /> 2 Full Years VIP Cinema & Series Streaming</li>
-                  <li><Check size={13} style={{ color: "var(--accent-gold)" }} /> Direct CEXhybrid.io Coin Bridge</li>
-                  <li><Check size={13} style={{ color: "var(--accent-gold)" }} /> Smart Contract Internal Liquidity Protocol</li>
-                  <li><Check size={13} style={{ color: "var(--accent-gold)" }} /> Maximum Download Bandwidth Priority</li>
-                </ul>
-                <button
-                  type="button"
-                  className="btn-tier-cta featured"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpenSubModal('NCH_2YR');
-                  }}
-                >
-                  <Crown size={14} />
-                  <span>Claim 2-Year VIP ($20 / 400 NCH Coin)</span>
-                </button>
-              </div>
+            </div>
+            <div className="vip-strip-actions">
+              <button className="btn-vip-strip-plan" onClick={() => handleOpenSubModal("FIAT_1YR")}>
+                <Zap size={14} /> 1-Year VIP ($13.56)
+              </button>
+              <button className="btn-vip-strip-plan usdt" onClick={() => handleOpenSubModal("USDT_1YR")}>
+                <Coins size={14} /> 13.60 USDT VIP
+              </button>
+              <button className="btn-vip-strip-plan elite" onClick={() => handleOpenSubModal("NCH_2YR")}>
+                <Crown size={14} /> 2-Year Elite ($20 / 400 NCH)
+              </button>
             </div>
           </div>
 
@@ -2205,6 +2349,25 @@ export default function App() {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                {/* Strict AdShield Sandbox Toggle */}
+                <button
+                  className={`btn-player-action adshield-toggle ${strictAdShield ? 'active' : 'relaxed'}`}
+                  onClick={() => {
+                    const next = !strictAdShield;
+                    setStrictAdShield(next);
+                    showToast(
+                      next
+                        ? "🛡️ Strict AdShield ENABLED (100% Popups, Popunders & Redirects Blocked)"
+                        : "⚠️ Strict AdShield Relaxed (Popups permitted for picky mirrors)",
+                      next ? "success" : "info"
+                    );
+                  }}
+                  title="Toggle Browser Engine Sandboxing (100% Popups Blocked)"
+                >
+                  <ShieldCheck size={14} style={{ color: strictAdShield ? "var(--accent-green)" : "var(--accent-gold)" }} />
+                  <span>AdShield: {strictAdShield ? "Strict (0 Popups)" : "Relaxed"}</span>
+                </button>
+
                 {/* Theater Mode */}
                 <button
                   className={`btn-player-action ${isTheaterMode ? 'active' : ''}`}
@@ -2446,7 +2609,7 @@ export default function App() {
                   )}
 
                   <iframe
-                  key={`${playerMovie.imdbID}-${selectedProvider}-s${selectedSeason}-e${selectedEpisode}`}
+                  key={`${playerMovie.imdbID}-${selectedProvider}-s${selectedSeason}-e${selectedEpisode}-${strictAdShield}`}
                   src={playerMovie.directUrl || EMBED_PROVIDERS[selectedProvider].buildUrl(
                     playerMovie.imdbID,
                     selectedSeason,
@@ -2458,6 +2621,7 @@ export default function App() {
                   allowFullScreen
                   allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope; clipboard-write; web-share"
                   referrerPolicy="no-referrer"
+                  sandbox={strictAdShield ? "allow-scripts allow-same-origin allow-forms" : "allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"}
                   />
                 </>
               )}
