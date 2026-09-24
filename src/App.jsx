@@ -113,6 +113,15 @@ const COUNTRIES_LIST = [
 // ============================================================================
 const EMBED_PROVIDERS = [
   {
+    id: "vidsrc_pm",
+    name: "⚡ VidSrc PM (Default • 1080p)",
+    icon: "⚡",
+    tag: "Default Player • High Speed • 1080p HD",
+    quality: "1080p HD",
+    buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
+      isSeries ? `https://vidsrc.pm/embed/tv/${imdbId}/${season}/${episode}` : `https://vidsrc.pm/embed/movie/${imdbId}`
+  },
+  {
     id: "vidlink",
     name: "💎 VidLink Pro (Ultra HD • Zero Ads)",
     icon: "💎",
@@ -125,23 +134,14 @@ const EMBED_PROVIDERS = [
   },
   {
     id: "autoembed",
-    name: "⚡ AutoEmbed VIP (Clean Stream)",
-    icon: "⚡",
+    name: "🚀 AutoEmbed VIP (Clean Stream)",
+    icon: "🚀",
     tag: "Multi-Server • Zero Ads • Fast",
     quality: "1080p HD",
     buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
       isSeries
         ? `https://autoembed.co/tv/imdb/${imdbId}-${season}-${episode}`
         : `https://autoembed.co/movie/imdb/${imdbId}`
-  },
-  {
-    id: "vidsrc_pm",
-    name: "🚀 VidSrc PM (Fast Mirror)",
-    icon: "🚀",
-    tag: "Fast CDN • 1080p",
-    quality: "1080p HD",
-    buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
-      isSeries ? `https://vidsrc.pm/embed/tv/${imdbId}/${season}/${episode}` : `https://vidsrc.pm/embed/movie/${imdbId}`
   },
   {
     id: "vidsrc_to",
