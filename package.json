@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/check-no-sandbox.mjs",
     "build": "vite build",
+    "postbuild": "node scripts/check-no-sandbox.mjs --dist",
+    "check:sandbox": "node scripts/check-no-sandbox.mjs && node scripts/check-no-sandbox.mjs --dist",
     "lint": "oxlint",
     "preview": "vite preview"
   },

@@ -330,9 +330,6 @@ export default function App() {
   const [clickShieldActive, setClickShieldActive] = useState(false);
   const clickShieldDismissedAt = useRef(0);
 
-  // Strict Iframe Sandboxing (Blocks 100% of popups at browser engine level)
-  const [strictAdShield, setStrictAdShield] = useState(true);
-
   // Netflix-Style Spotlight & Dynamic Rotation State (Regularly changing dashboard)
   const [heroIndex, setHeroIndex] = useState(0);
   const [isHeroHovered, setIsHeroHovered] = useState(false);
@@ -2349,25 +2346,6 @@ export default function App() {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                {/* Strict AdShield Sandbox Toggle */}
-                <button
-                  className={`btn-player-action adshield-toggle ${strictAdShield ? 'active' : 'relaxed'}`}
-                  onClick={() => {
-                    const next = !strictAdShield;
-                    setStrictAdShield(next);
-                    showToast(
-                      next
-                        ? "🛡️ Strict AdShield ENABLED (100% Popups, Popunders & Redirects Blocked)"
-                        : "⚠️ Strict AdShield Relaxed (Popups permitted for picky mirrors)",
-                      next ? "success" : "info"
-                    );
-                  }}
-                  title="Toggle Browser Engine Sandboxing (100% Popups Blocked)"
-                >
-                  <ShieldCheck size={14} style={{ color: strictAdShield ? "var(--accent-green)" : "var(--accent-gold)" }} />
-                  <span>AdShield: {strictAdShield ? "Strict (0 Popups)" : "Relaxed"}</span>
-                </button>
-
                 {/* Theater Mode */}
                 <button
                   className={`btn-player-action ${isTheaterMode ? 'active' : ''}`}
@@ -2609,7 +2587,7 @@ export default function App() {
                   )}
 
                   <iframe
-                  key={`${playerMovie.imdbID}-${selectedProvider}-s${selectedSeason}-e${selectedEpisode}-${strictAdShield}`}
+                  key={`${playerMovie.imdbID}-${selectedProvider}-s${selectedSeason}-e${selectedEpisode}`}
                   src={playerMovie.directUrl || EMBED_PROVIDERS[selectedProvider].buildUrl(
                     playerMovie.imdbID,
                     selectedSeason,
@@ -2621,7 +2599,10 @@ export default function App() {
                   allowFullScreen
                   allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope; clipboard-write; web-share"
                   referrerPolicy="no-referrer"
-                  sandbox={strictAdShield ? "allow-scripts allow-same-origin allow-forms" : "allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"}
+                  /* ⛔ NEVER add a `sandbox` attribute here. Embed providers detect it and refuse to play
+                     ("playback blocked / restricted (sandboxed)"). Popup defense is handled by the
+                     AdShield layers (window.open override, click shield, blur/focus recovery) instead.
+                     scripts/check-no-sandbox.mjs fails the build if a sandbox attribute is re-introduced. */
                   />
                 </>
               )}
