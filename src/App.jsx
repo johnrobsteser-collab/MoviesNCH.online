@@ -113,17 +113,8 @@ const COUNTRIES_LIST = [
 // ============================================================================
 const EMBED_PROVIDERS = [
   {
-    id: "vidsrc_pm",
-    name: "⚡ VidSrc PM (Default • 1080p)",
-    icon: "⚡",
-    tag: "Default Player • High Speed • 1080p HD",
-    quality: "1080p HD",
-    buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
-      isSeries ? `https://vidsrc.pm/embed/tv/${imdbId}/${season}/${episode}` : `https://vidsrc.pm/embed/movie/${imdbId}`
-  },
-  {
     id: "vidlink",
-    name: "💎 VidLink Pro (Ultra HD • Zero Ads)",
+    name: "💎 VidLink Pro (Default • Zero Ads)",
     icon: "💎",
     tag: "Ultra HD 4K • Clean Player • Zero Ads",
     quality: "4K / 1080p",
@@ -140,17 +131,30 @@ const EMBED_PROVIDERS = [
     quality: "1080p HD",
     buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
       isSeries
-        ? `https://autoembed.co/tv/imdb/${imdbId}-${season}-${episode}`
-        : `https://autoembed.co/movie/imdb/${imdbId}`
+        ? `https://player.autoembed.cc/embed/tv/${imdbId}/${season}/${episode}`
+        : `https://player.autoembed.cc/embed/movie/${imdbId}`
   },
   {
-    id: "vidsrc_to",
-    name: "📡 VidSrc TO (Cloudflare CDN)",
-    icon: "📡",
-    tag: "Cloudflare Mirror • 1080p",
+    id: "embed_su",
+    name: "⚡ Embed.su (High-Speed CDN)",
+    icon: "⚡",
+    tag: "Fast CDN • Multi-Language • Clean",
     quality: "1080p HD",
     buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
-      isSeries ? `https://vidsrc.to/embed/tv/${imdbId}/${season}/${episode}` : `https://vidsrc.to/embed/movie/${imdbId}`
+      isSeries
+        ? `https://embed.su/embed/tv/${imdbId}/${season}/${episode}`
+        : `https://embed.su/embed/movie/${imdbId}`
+  },
+  {
+    id: "vidsrc_cc",
+    name: "🎬 VidSrc CC (Cloud Mirror)",
+    icon: "🎬",
+    tag: "Direct Cloud Player • 1080p",
+    quality: "1080p HD",
+    buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
+      isSeries
+        ? `https://vidsrc.cc/v2/embed/tv/${imdbId}/${season}/${episode}`
+        : `https://vidsrc.cc/v2/embed/movie/${imdbId}`
   },
   {
     id: "multiembed",
@@ -159,16 +163,9 @@ const EMBED_PROVIDERS = [
     tag: "Stable Mirror • Global",
     quality: "1080p HD",
     buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
-      isSeries ? `https://multiembed.mov/?video_id=${imdbId}&s=${season}&e=${episode}` : `https://multiembed.mov/?video_id=${imdbId}`
-  },
-  {
-    id: "two_embed",
-    name: "🎥 2Embed Cinema",
-    icon: "🎥",
-    tag: "Classic Stream • 1080p",
-    quality: "1080p HD",
-    buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
-      isSeries ? `https://www.2embed.cc/embedtv/${imdbId}&s=${season}&e=${episode}` : `https://www.2embed.cc/embed/${imdbId}`
+      isSeries
+        ? `https://multiembed.mov/?video_id=${imdbId}&s=${season}&e=${episode}`
+        : `https://multiembed.mov/?video_id=${imdbId}`
   },
   {
     id: "smashystream",
@@ -177,7 +174,20 @@ const EMBED_PROVIDERS = [
     tag: "Turbo Stream • Multi-Sub",
     quality: "1080p HD",
     buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
-      isSeries ? `https://player.smashystream.com/tv/${imdbId}?s=${season}&e=${episode}` : `https://player.smashystream.com/movie/${imdbId}`
+      isSeries
+        ? `https://player.smashystream.com/tv/${imdbId}?s=${season}&e=${episode}`
+        : `https://player.smashystream.com/movie/${imdbId}`
+  },
+  {
+    id: "vidsrc_pm",
+    name: "📡 VidSrc PM (Legacy Fallback)",
+    icon: "📡",
+    tag: "Fallback Mirror • 1080p",
+    quality: "1080p HD",
+    buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
+      isSeries
+        ? `https://vidsrc.pm/embed/tv/${imdbId}/${season}/${episode}`
+        : `https://vidsrc.pm/embed/movie/${imdbId}`
   },
   {
     id: "moviesapi",
@@ -186,7 +196,9 @@ const EMBED_PROVIDERS = [
     tag: "HD Stream Club",
     quality: "1080p HD",
     buildUrl: (imdbId, season = 1, episode = 1, isSeries = false) =>
-      isSeries ? `https://moviesapi.club/tv/${imdbId}-${season}-${episode}` : `https://moviesapi.club/movie/${imdbId}`
+      isSeries
+        ? `https://moviesapi.club/tv/${imdbId}-${season}-${episode}`
+        : `https://moviesapi.club/movie/${imdbId}`
   }
 ];
 
@@ -491,7 +503,7 @@ export default function App() {
         setSelectedProvider(0);
         setSelectedSeason(1);
         setSelectedEpisode(1);
-        setClickShieldActive(true);
+        setClickShieldActive(false);
       };
       const kindLabel = movie.Type === 'series' ? 'TV Series' : 'Cinema';
       setSubPromptReason(`To stream ${kindLabel} "${movie.Title}" in 1080p/4K Zero-Popup Cinema, complete quick KYC & choose your subscription.`);
@@ -502,7 +514,7 @@ export default function App() {
     setSelectedProvider(0);
     setSelectedSeason(1);
     setSelectedEpisode(1);
-    setClickShieldActive(true);
+    setClickShieldActive(false);
   }, [isVipActive]);
 
 
@@ -562,31 +574,42 @@ export default function App() {
     window.addEventListener('touchstart', trackInteraction, true);
 
     const handleWindowBlur = () => {
+      const isPlayerActive = Boolean(document.querySelector('.cinema-player-modal, .cinema-modal-backdrop, .cinema-screen-wrap'));
       const timeSinceInteraction = Date.now() - lastInteractionTime;
-      if (timeSinceInteraction < 2000 && document.querySelector('.cinema-player-modal')) {
+      if (isPlayerActive && timeSinceInteraction < 3500) {
         setBlockedAdsCount(prev => prev + 1);
-        console.warn('🛡️ AdShield: Popup stole focus — reclaiming');
-        setTimeout(() => { window.focus(); }, 50);
+        console.warn('🛡️ AdShield: Popup attempt detected — reclaiming focus to MoviesNCH');
+        window.focus();
+        setTimeout(() => window.focus(), 15);
+        setTimeout(() => window.focus(), 60);
+        setTimeout(() => window.focus(), 150);
+        setTimeout(() => window.focus(), 350);
         showToast('🛡️ AdShield neutralized a background popup!', 'success');
-        const timeSinceShieldDismiss = Date.now() - clickShieldDismissedAt.current;
-        if (timeSinceShieldDismiss < 800) {
-          setClickShieldActive(true);
-          console.warn('🛡️ AdShield: Re-armed click shield');
-        }
       }
     };
     window.addEventListener('blur', handleWindowBlur);
 
     const handleVisibilityChange = () => {
-      if (document.hidden && document.querySelector('.cinema-player-modal')) {
+      const isPlayerActive = Boolean(document.querySelector('.cinema-player-modal, .cinema-modal-backdrop, .cinema-screen-wrap'));
+      if (document.hidden && isPlayerActive) {
         const t = Date.now() - lastInteractionTime;
-        if (t < 2000) setTimeout(() => { if (document.hidden) window.focus(); }, 100);
+        if (t < 3500) {
+          setTimeout(() => {
+            if (document.hidden) {
+              window.focus();
+            }
+          }, 40);
+        }
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     const handleBeforeUnload = (e) => {
-      if (document.querySelector('.cinema-player-modal')) { e.preventDefault(); e.returnValue = ''; }
+      const isPlayerActive = Boolean(document.querySelector('.cinema-player-modal, .cinema-modal-backdrop, .cinema-screen-wrap'));
+      if (isPlayerActive) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
     };
     window.addEventListener('beforeunload', handleBeforeUnload, { capture: true });
 
@@ -2275,7 +2298,7 @@ export default function App() {
       {/* 🎬 CINEMA STREAMING PLAYER MODAL (ZERO-POPUP REAL MOVIE STREAMING)           */}
       {/* ============================================================================ */}
       {playerMovie && (
-        <div className={`cinema-modal-backdrop ${isTheaterMode ? 'theater' : ''}`} onClick={(e) => {
+        <div className={`cinema-modal-backdrop cinema-player-modal ${isTheaterMode ? 'theater' : ''}`} onClick={(e) => {
           if (e.target === e.currentTarget) setPlayerMovie(null);
         }}>
           <div className="cinema-modal-content" ref={playerContainerRef}>
