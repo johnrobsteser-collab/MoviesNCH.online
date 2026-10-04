@@ -10,7 +10,9 @@ import {
   Shuffle,
   ChevronLeft,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  Clock,
+  MapPin
 } from "lucide-react";
 
 export default function NetflixHeroMarquee({
@@ -88,14 +90,16 @@ export default function NetflixHeroMarquee({
               </span>
             ) : (
               <span className="meta-pill runtime">
-                ⏱️ {movie.Runtime || "120 min"}
+                <Clock size={12} /> {movie.Runtime || "120 min"}
               </span>
             )}
 
             <span className="meta-pill genre">{movie.Genre || "Action, Adventure"}</span>
 
             {movie.Country && (
-              <span className="meta-pill country">📍 {movie.Country}</span>
+              <span className="meta-pill country">
+                <MapPin size={12} /> {movie.Country}
+              </span>
             )}
           </div>
 
